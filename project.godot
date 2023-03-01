@@ -10,9 +10,29 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Node2D",
+"class": "Board",
+"language": "GDScript",
+"path": "res://test/Board.gd"
+}, {
+"base": "Node",
+"class": "Deck",
+"language": "GDScript",
+"path": "res://classes/Deck.gd"
+}, {
+"base": "Node",
+"class": "Dk",
+"language": "GDScript",
+"path": "res://test/Dk.gd"
+}, {
+"base": "Node2D",
 "class": "PlayBoard",
 "language": "GDScript",
 "path": "res://classes/PlayBoard.gd"
+}, {
+"base": "Node2D",
+"class": "TG",
+"language": "GDScript",
+"path": "res://test/TG.gd"
 }, {
 "base": "Node2D",
 "class": "TileGroup",
@@ -20,7 +40,11 @@ _global_script_classes=[ {
 "path": "res://classes/TileGroup.gd"
 } ]
 _global_script_class_icons={
+"Board": "",
+"Deck": "",
+"Dk": "",
 "PlayBoard": "",
+"TG": "",
 "TileGroup": ""
 }
 

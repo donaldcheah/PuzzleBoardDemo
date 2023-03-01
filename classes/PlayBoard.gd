@@ -2,13 +2,13 @@ extends Node2D
 
 class_name PlayBoard
 
-const greenTex:Texture = preload("res://assets/green_64.png")
-const greyTex:Texture = preload("res://assets/grey_64.png")
-const redTex:Texture = preload("res://assets/red_64.png")
-const yellowTex:Texture = preload("res://assets/yellow_64.png")
+var greenTex:Texture = preload("res://assets/green_64.png")
+var greyTex:Texture = preload("res://assets/grey_64.png")
+var redTex:Texture = preload("res://assets/red_64.png")
+var yellowTex:Texture = preload("res://assets/yellow_64.png")
 
-const TILE_SIZE = 64
-const DIVIDER_SIZE = 2
+var TILE_SIZE = 64
+var DIVIDER_SIZE = 4
 
 
 var L0:Node2D = Node2D.new() # bottom, grey tiles
@@ -26,42 +26,12 @@ var board_space = [] #fill space with 1 for occupied and 0 for empty
 var color_effect_sprites = []
 
 # TileGroups
-var tileGroupData=[
-	{
-		'pos':Vector2(200,400),
-		'form':[
-			[1,1,1],
-			[1,0,0]
-		]
-	},
-	{
-		'pos':Vector2(720,100),
-		'form':[
-			[0,1,0],
-			[1,1,1]
-		]
-	},
-	{
-		'pos':Vector2(680,400),
-		'form':[
-			[1,1,1]
-		]
-	},
-	{
-		'pos':Vector2(100,100),
-		'form':[
-			[1]
-		]
-	},
-	{
-		'pos':Vector2(60,190),
-		'form':[
-			[1,1],
-			[0,1],
-			[0,1]
-		]
-	}
-]
+var tileGroupData=[#TOP
+	{"pos":Vector2(0,0),"form":[[1,0],[1,1],[1,0]]},
+	{"pos":Vector2(0,0),"form":[[1,1,1],[0,1,0]]},
+	{"pos":Vector2(0,0),"form":[[0,1],[1,1],[0,1]]},
+	{"pos":Vector2(0,0),"form":[[0,1,0],[1,1,1]]}
+]#BOTTOM
 
 # should be in L3, idle or dragging off the board
 var tile_groups_idle = []
@@ -105,6 +75,8 @@ func init_board_color_effect_tiles():
 func init_tile_groups():
 	for data in tileGroupData:
 		var tg = TileGroup.new()
+		tg.TILE_SIZE = TILE_SIZE
+		tg.DIVIDER_SIZE = DIVIDER_SIZE
 		tg.tileTex = yellowTex
 		tg.form = data.form
 		tg.ori_pos = data.pos

@@ -5,8 +5,8 @@ var tileTex:Texture
 var form=[]
 var ori_pos:Vector2
 
-const TILE_SIZE = 64
-const DIVIDER_SIZE = 2
+var TILE_SIZE = 64
+var DIVIDER_SIZE = 4
 
 var mouse_over_idx = []
 
