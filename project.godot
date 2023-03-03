@@ -12,27 +12,17 @@ _global_script_classes=[ {
 "base": "Node2D",
 "class": "Board",
 "language": "GDScript",
-"path": "res://test/Board.gd"
+"path": "res://classes/Board.gd"
 }, {
 "base": "Node",
 "class": "Deck",
 "language": "GDScript",
 "path": "res://classes/Deck.gd"
 }, {
-"base": "Node",
-"class": "Dk",
-"language": "GDScript",
-"path": "res://test/Dk.gd"
-}, {
 "base": "Node2D",
-"class": "PlayBoard",
+"class": "Game",
 "language": "GDScript",
-"path": "res://classes/PlayBoard.gd"
-}, {
-"base": "Node2D",
-"class": "TG",
-"language": "GDScript",
-"path": "res://test/TG.gd"
+"path": "res://classes/Game.gd"
 }, {
 "base": "Node2D",
 "class": "TileGroup",
@@ -42,9 +32,7 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Board": "",
 "Deck": "",
-"Dk": "",
-"PlayBoard": "",
-"TG": "",
+"Game": "",
 "TileGroup": ""
 }
 
@@ -53,6 +41,12 @@ _global_script_class_icons={
 config/name="Puzzle Board"
 run/main_scene="res://scenes/Main.tscn"
 config/icon="res://icon.png"
+
+[display]
+
+window/size/resizable=false
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
 
 [gui]
 

@@ -109,7 +109,7 @@ func num_center_points_on_board(centerPositions):
 
 	return match_count
 
-func place_tile_group(tg:TG):
+func place_tile_group(tg:TileGroup):
 	#gets the relative position of TG to the board's screen position
 	var dxy = tg.position - on_screen_pos
 	#adds half of tile size for pointing to the center of the tile
@@ -137,7 +137,7 @@ func place_tile_group(tg:TG):
 		board_space[rel_index.y][rel_index.x]=1
 	
 #used when placed tile group leaves the board
-func on_tile_group_dragged(tg:TG):
+func on_tile_group_dragged(tg:TileGroup):
 	placed_tile_groups.erase(tg)
 	tg.disconnect("drag_tile_group",self,"on_tile_group_dragged")
 	#should also remove the occupied space in board_space
@@ -151,7 +151,7 @@ func on_tile_group_dragged(tg:TG):
 
 #used in main/test scene, when a tile group is being dragged around
 #to show the green/red effect on board for the tg supplied
-func show_effect_on_board(tg:TG):
+func show_effect_on_board(tg:TileGroup):
 	var centers = tg.get_all_tile_centers()
 	var result = {
 		"valid":[],

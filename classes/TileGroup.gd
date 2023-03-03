@@ -1,65 +1,77 @@
 extends Node2D
+
 class_name TileGroup
 
+#signal fires when the TG is being dragged and released
+signal release_tile_group(tileGroup)
+
+#signal fires when the TG is being dragged
+signal drag_tile_group(tileGroup)
+
+var tileSize:int
+var dividerSize:int
+
 var tileTex:Texture
-var form=[]
 var ori_pos:Vector2
+var form
 
-var TILE_SIZE = 64
-var DIVIDER_SIZE = 4
+var tiles=[]
 
-var mouse_over_idx = []
+var is_dragging = false
+var prevPos = Vector2.ZERO
 
-var tiles = []
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	position = ori_pos
 	for y in form.size():
 		for x in form[y].size():
 			if form[y][x] == 1:
 				var spr = Sprite.new()
 				spr.centered=false
 				spr.texture = tileTex
-				spr.position = Vector2(x * (TILE_SIZE+DIVIDER_SIZE),y* (TILE_SIZE+DIVIDER_SIZE))
-				add_child(spr)
+				spr.position = Vector2(
+					x*(tileSize+dividerSize),
+					y*(tileSize+dividerSize)
+				)
 				tiles.append(spr)
-				
-				var area = Area2D.new()
-				spr.add_child(area)
-				
-				var coll = CollisionShape2D.new()
-				coll.position = Vector2(TILE_SIZE/2,TILE_SIZE/2)
-				area.add_child(coll)
-				coll.shape = RectangleShape2D.new()
-				coll.shape.extents = Vector2(TILE_SIZE/2,TILE_SIZE/2)
-				
-				var idx = '%d,%d'%[x,y]
-				area.connect("mouse_entered",self,"_mouse_enter",[idx])
-				area.connect('mouse_exited',self,'_mouse_exit',[idx])
+				add_child(spr)
+	position = ori_pos
 
-func num_tiles():
-	return tiles.size()
-	
-func is_mouse_over():
-	return mouse_over_idx.size()>0
+func _input(event):
+	if is_dragging && event is InputEventMouseMotion:
+		var dxy = event.position - prevPos
+		position += dxy
+		prevPos = event.position
+		
+	if event is InputEventMouseButton:
+		if event.button_index == BUTTON_LEFT:
+			if event.is_pressed():
+				if is_point_in_tiles(event.position):
+					is_dragging=true
+					prevPos = event.position
+					emit_signal("drag_tile_group",self)
+					get_tree().set_input_as_handled()
+			else:
+				if is_dragging:
+					is_dragging = false
+					emit_signal("release_tile_group",self)
 
-# returns list of center pos of tiles, relative to the screen
-func get_center_pos_of_tiles():
-	var arr = []
+func get_all_tile_centers():
+	var center_pos = []
+	for tile in tiles:
+		center_pos.append(position + tile.position + Vector2(tileSize/2,tileSize/2))
+	return center_pos
+
+func get_all_tile_rects():
+	var rects = []
 	for spr in tiles:
-		var pos = spr.position+Vector2(TILE_SIZE/2,TILE_SIZE/2) + position
-		arr.append(pos)
-	return arr
+		var r = spr.get_rect()
+		r.position += position+spr.position
+		rects.append(r)
+	return rects
 
-func _mouse_enter(idx):
-	mouse_over_idx.append(idx)
-	pass
-func _mouse_exit(idx):
-	mouse_over_idx.erase(idx)
-	pass
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func is_point_in_tiles(p):
+	for spr in tiles:
+		var tileRect:Rect2 = spr.get_rect()
+		tileRect.position = tileRect.position + position + spr.position
+		if tileRect.has_point(p):
+			return true
+	return false

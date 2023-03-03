@@ -1,5 +1,7 @@
 extends Node2D
 
+class_name Game
+
 var TILE_SIZE = 24
 var DIVIDER_SIZE = 1
 
@@ -47,14 +49,16 @@ var yellowTex:Texture
 
 var tile_groups=[]
 
-var dragging_tile_group:TG = null
+var dragging_tile_group:TileGroup = null
 
 var L0:Node # for deck
 var L1:Node # for board
 
+var load_file_name:String = "res://data/Level1.json"
+
 func _ready():
 	var f = File.new()
-	f.open("res://data/Level1.json",File.READ)
+	f.open(load_file_name,File.READ)
 	var json = JSON.parse(f.get_as_text()).result
 	
 	boardData = json.board
@@ -121,7 +125,7 @@ func init_board():
 
 func init_tile_groups():
 	for data in tileGroupData:
-		var tg = TG.new()
+		var tg = TileGroup.new()
 		tg.tileSize = TILE_SIZE
 		tg.dividerSize = DIVIDER_SIZE
 		tg.tileTex = yellowTex
@@ -162,7 +166,7 @@ func on_tile_group_dragged(tg):
 
 
 func init_deck():
-	var deck:Dk = Dk.new()
+	var deck:Deck = Deck.new()
 	deck.deckTexture = deckTex
 	var padding = 10
 	deck.deckPos = Vector2(padding, get_viewport_rect().size.y-deckTex.get_size().y-padding)
