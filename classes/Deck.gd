@@ -16,24 +16,34 @@ func _ready():
 	spr.position = deckPos
 	
 	add_child(spr)
-	pass # Replace with function body.
+	reveal_next()
 
-func _input(event):
-	if event is InputEventMouseButton:
-		if event.button_index == BUTTON_LEFT:
-			if event.is_pressed():
-				var rect:Rect2 = spr.get_rect()
-				rect.position += deckPos
-				if rect.has_point(event.position):
-					print('click in deck')
-					reveal_next()
+func on_tile_group_placed(tg:TileGroup):
+	print('in deck on_tile_group_placed')
+	if tg == tile_groups[revealIndex]:
+		var has_intersect = false
+		
+		var deckRect = spr.get_rect()
+		deckRect.position += spr.position
+		
+		var tg_tiles = tg.tiles
+		for t in tg_tiles:
+			var tileRect = t.get_rect()
+			tileRect.position += tg.position
+			if tileRect.intersects(deckRect):
+				has_intersect=true
+				break
+			
+		
+		if !has_intersect:
+			reveal_next()
 
 func reveal_next():
 	if revealIndex == tile_groups.size()-1:
 		return
 	revealIndex += 1
 	var tg:TileGroup = tile_groups[revealIndex]
-	tg.ori_pos = spr.position
+	tg.update_prev_position(spr.position,false)
 	print('pos:',tg.position)
 	add_child(tg)
 	

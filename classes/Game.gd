@@ -41,6 +41,8 @@ var boardData = {
 
 var board:Board
 
+var deck:Deck
+
 var deckTex:Texture
 var redTex:Texture
 var greenTex:Texture
@@ -122,6 +124,7 @@ func init_board():
 	board.form = boardData.form
 	board.boardPos = boardData.position
 	L1.add_child(board)
+	board.add_to_group("Board")
 
 func init_tile_groups():
 	for data in tileGroupData:
@@ -135,7 +138,7 @@ func init_tile_groups():
 		tg.connect('drag_tile_group',self,'on_tile_group_dragged')
 		tile_groups.append(tg)
 
-func on_tile_group_released(tg):
+func on_tile_group_released(tg:TileGroup):
 	var center_points = tg.get_all_tile_centers()
 	
 	var num_on_board = board.num_center_points_on_board(center_points)
@@ -144,20 +147,22 @@ func on_tile_group_released(tg):
 	if center_points.size() == num_on_board:
 		print('released into board')
 		board.place_tile_group(tg)
+		deck.on_tile_group_placed(tg)
 	elif num_on_board == 0:
 		print('released off board')
 		#still need to check for intersections...
 		var rects = tg.get_all_tile_rects()
-		#print('rects:',rects)
 		if board.has_intersect_rects(rects):
-			print('has intersect')
-			tg.position = tg.ori_pos
+			print('has intersect, so it is patially on board')
+			tg.snap_back_to_prev_position()
 		else:
-			print('no intersect')
-			tg.ori_pos = tg.position
+			print('no intersect, totally off the board')
+			tg.update_prev_position(tg.position,false)
+			deck.on_tile_group_placed(tg)
 	else:
 		print('released partially on board')
-		tg.position = tg.ori_pos
+		tg.snap_back_to_prev_position()
+	
 	dragging_tile_group = null
 	board.reset_effects_on_board()
 
@@ -166,7 +171,7 @@ func on_tile_group_dragged(tg):
 
 
 func init_deck():
-	var deck:Deck = Deck.new()
+	deck = Deck.new()
 	deck.deckTexture = deckTex
 	var padding = 10
 	deck.deckPos = Vector2(padding, get_viewport_rect().size.y-deckTex.get_size().y-padding)

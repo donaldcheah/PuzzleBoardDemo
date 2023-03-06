@@ -121,7 +121,7 @@ func place_tile_group(tg:TileGroup):
 		(tileSize+dividerSize)
 	)).floor()
 	tg.position = on_screen_pos+dxyIndex*(tileSize+dividerSize)
-	tg.ori_pos = tg.position
+	tg.update_prev_position(tg.position,true)
 	
 	tg.connect("drag_tile_group",self,"on_tile_group_dragged")
 	placed_tile_groups.append(tg)
@@ -136,6 +136,8 @@ func place_tile_group(tg:TileGroup):
 		var rel_index = ((p-on_screen_pos)/(tileSize+dividerSize)).floor()
 		board_space[rel_index.y][rel_index.x]=1
 	
+	tg.hide_shadow()
+	
 #used when placed tile group leaves the board
 func on_tile_group_dragged(tg:TileGroup):
 	placed_tile_groups.erase(tg)
@@ -148,6 +150,7 @@ func on_tile_group_dragged(tg:TileGroup):
 	if tg.get_parent()!=null:
 		tg.get_parent().remove_child(tg)
 	get_parent().add_child(tg)
+	tg.show_shadow()
 
 #used in main/test scene, when a tile group is being dragged around
 #to show the green/red effect on board for the tg supplied

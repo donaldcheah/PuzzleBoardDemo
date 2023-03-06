@@ -13,9 +13,12 @@ var dividerSize:int
 
 var tileTex:Texture
 var ori_pos:Vector2
+var ori_pos_is_on_board:bool=false
 var form
 
 var tiles=[]
+
+var shadow_tiles=[]
 
 var is_dragging = false
 var prevPos = Vector2.ZERO
@@ -24,6 +27,23 @@ func _ready():
 	for y in form.size():
 		for x in form[y].size():
 			if form[y][x] == 1:
+				var shadow = Sprite.new()
+				shadow.centered = false
+				shadow.texture = tileTex
+				shadow.offset = Vector2(5,5)
+				shadow.modulate.a = 0.2
+				shadow.modulate.r = 0
+				shadow.modulate.g = 0
+				shadow.modulate.b = 0
+				shadow.z_index = -0.1
+				shadow.z_as_relative = true
+				shadow.position = Vector2(
+					x*(tileSize+dividerSize),
+					y*(tileSize+dividerSize)
+				)
+				shadow_tiles.append(shadow)
+				add_child(shadow)
+				
 				var spr = Sprite.new()
 				spr.centered=false
 				spr.texture = tileTex
@@ -33,7 +53,18 @@ func _ready():
 				)
 				tiles.append(spr)
 				add_child(spr)
+				
 	position = ori_pos
+
+
+func show_shadow():
+	for spr in shadow_tiles:
+		spr.visible = true
+		
+func hide_shadow():
+	for spr in shadow_tiles:
+		spr.visible = false
+
 
 func _input(event):
 	if is_dragging && event is InputEventMouseMotion:
@@ -48,6 +79,13 @@ func _input(event):
 					is_dragging=true
 					prevPos = event.position
 					emit_signal("drag_tile_group",self)
+					
+					#to add the TG back to the top of the list of displays
+					var parent = get_parent()
+					if parent!=null:
+						parent.remove_child(self)
+						parent.add_child(self)
+					
 					get_tree().set_input_as_handled()
 			else:
 				if is_dragging:
@@ -68,10 +106,25 @@ func get_all_tile_rects():
 		rects.append(r)
 	return rects
 
-func is_point_in_tiles(p):
+func is_point_in_tiles(p:Vector2):
 	for spr in tiles:
 		var tileRect:Rect2 = spr.get_rect()
 		tileRect.position = tileRect.position + position + spr.position
 		if tileRect.has_point(p):
 			return true
 	return false
+
+func snap_back_to_prev_position():
+	position = ori_pos
+	if(ori_pos_is_on_board):
+		hide_shadow()
+		var b = get_tree().get_nodes_in_group("Board")[0]
+		#if b.has_method('place_tile_group'):
+		b.place_tile_group(self)
+
+
+func update_prev_position(new_position:Vector2,is_on_board:bool):
+	ori_pos = new_position
+	ori_pos_is_on_board = is_on_board
+
+
