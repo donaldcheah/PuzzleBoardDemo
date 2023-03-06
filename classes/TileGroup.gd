@@ -127,4 +127,10 @@ func update_prev_position(new_position:Vector2,is_on_board:bool):
 	ori_pos = new_position
 	ori_pos_is_on_board = is_on_board
 
+func get_calc_size():
+	var calc_size=Vector2(
+		tileSize * form[0].size(),
+		tileSize * form.size()
+	)
+	return calc_size
 

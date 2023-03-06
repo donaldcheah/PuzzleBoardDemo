@@ -2,23 +2,27 @@ extends Node2D
 
 class_name Game
 
+
 var TILE_SIZE = 24
 var DIVIDER_SIZE = 1
 
 #TODO: should be gotten from .json
 var tileGroupData=[
 	{
+		'color':'#ff0000',
 		'form':[
 			[1],
 		]
 	},
 	{
+		'color':'#00ff00',
 		'form':[
 			[1,1,1],
 			[0,1,0]
 		]
 	},
 	{
+		'color':'#0000ff',
 		'form':[
 			[0,1],
 			[0,1],
@@ -43,11 +47,11 @@ var board:Board
 
 var deck:Deck
 
-var deckTex:Texture
-var redTex:Texture
+var boardTex:Texture
 var greenTex:Texture
-var greyTex:Texture
-var yellowTex:Texture
+var redTex:Texture
+var deckTex:Texture
+var colorTextureMap={}
 
 var tile_groups=[]
 
@@ -56,42 +60,45 @@ var dragging_tile_group:TileGroup = null
 var L0:Node # for deck
 var L1:Node # for board
 
-var load_file_name:String = "res://data/Level1.json"
+var level_file_name:String = "res://data/Level1.json"
 
 func _ready():
+	load_level_file()
+	init_textures()
+	init_layers()
+	init_board()
+	init_tile_groups()
+	init_deck()
+	
+func load_level_file():
 	var f = File.new()
-	f.open(load_file_name,File.READ)
+	f.open(level_file_name,File.READ)
 	var json = JSON.parse(f.get_as_text()).result
 	
 	boardData = json.board
 	tileGroupData = json.tileGroups
-	
-	init_textures()
-	
-	init_layers()
-	
-	init_board()
-	
-	init_tile_groups()
 
-	init_deck()
-	
 func init_textures():
-		#dynamically create the color textures for required sizes
-	var img = Image.new()
-	img.create(TILE_SIZE,TILE_SIZE,false,Image.FORMAT_RGBA4444)
+	var colors = []
+	for tg in tileGroupData:
+		if !colors.has(tg.color):
+			colors.append(tg.color)
 	
-	img.fill(Color(1,1,0,1))
-	var yellowTexture = ImageTexture.new()
-	yellowTexture.create(TILE_SIZE, TILE_SIZE, Image.FORMAT_RGBA4444)
-	yellowTexture.set_data(img)
-	yellowTex = yellowTexture
+	#dynamically create the color textures for required sizes
+	var img = Image.new()
+	img.create(TILE_SIZE, TILE_SIZE,false,Image.FORMAT_RGBA4444)
+	
+	for color in colors:
+		img.fill(Color(color))
+		var tex = ImageTexture.new()
+		tex.create(TILE_SIZE, TILE_SIZE, Image.FORMAT_RGBA4444)
+		tex.set_data(img)
+		colorTextureMap[color] = tex
 	
 	img.fill(Color.gray)
-	var greyTexture = ImageTexture.new()
-	greyTexture.create(TILE_SIZE, TILE_SIZE, Image.FORMAT_RGBA4444)
-	greyTexture.set_data(img)
-	greyTex = greyTexture
+	boardTex = ImageTexture.new()
+	boardTex.create(TILE_SIZE, TILE_SIZE, Image.FORMAT_RGBA4444)
+	boardTex.set_data(img)
 	
 	img.fill(Color.green)
 	var greenTexture = ImageTexture.new()
@@ -113,12 +120,12 @@ func init_layers():
 	
 	add_child(L0)
 	add_child(L1)
-	
+
 func init_board():
 	board = Board.new()
 	board.tileSize = TILE_SIZE
 	board.dividerSize = DIVIDER_SIZE
-	board.tileTex = greyTex
+	board.tileTex = boardTex
 	board.greenTex = greenTex
 	board.redTex = redTex
 	board.form = boardData.form
@@ -131,12 +138,21 @@ func init_tile_groups():
 		var tg = TileGroup.new()
 		tg.tileSize = TILE_SIZE
 		tg.dividerSize = DIVIDER_SIZE
-		tg.tileTex = yellowTex
+		tg.tileTex = colorTextureMap[data.color]
 		tg.form=data.form
 		tg.ori_pos=Vector2.ZERO
 		tg.connect('release_tile_group',self,'on_tile_group_released')
 		tg.connect('drag_tile_group',self,'on_tile_group_dragged')
 		tile_groups.append(tg)
+
+func init_deck():
+	deck = Deck.new()
+	deck.deckTexture = deckTex
+	var padding = 10
+	deck.deckPos = Vector2(padding, get_viewport().size.y-deckTex.get_size().y-padding)
+	deck.tile_groups = tile_groups
+	L1.add_child(deck)
+
 
 func on_tile_group_released(tg:TileGroup):
 	var center_points = tg.get_all_tile_centers()
@@ -170,17 +186,14 @@ func on_tile_group_dragged(tg):
 	dragging_tile_group = tg
 
 
-func init_deck():
-	deck = Deck.new()
-	deck.deckTexture = deckTex
-	var padding = 10
-	deck.deckPos = Vector2(padding, get_viewport_rect().size.y-deckTex.get_size().y-padding)
-	deck.tile_groups = tile_groups
-	L1.add_child(deck)
-	
-	
+
 func _process(delta):
 	if dragging_tile_group != null:
 		board.show_effect_on_board(dragging_tile_group)
+
+
+
+
+
 
 
