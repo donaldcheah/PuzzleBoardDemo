@@ -44,9 +44,15 @@ func init_layers():
 
 func init_board():
 	on_screen_pos = Vector2(
+		boardPos.xIndex,
+		boardPos.yIndex
+	)
+	"""
+	on_screen_pos = Vector2(
 		boardPos.xIndex * tileSize,
 		boardPos.yIndex * tileSize
 	)
+	"""
 	for y in form.size():
 		var row = []
 		for x in form[y].size():
@@ -195,7 +201,9 @@ func reset_effects_on_board():
 		"invalid":[]
 	})
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func get_calc_size():
+	var calc_size=Vector2(
+		tileSize * form[0].size(),
+		tileSize * form.size()
+	)
+	return calc_size

@@ -11,7 +11,9 @@ signal drag_tile_group(tileGroup)
 var tileSize:int
 var dividerSize:int
 
-var tileTex:Texture
+#var tileTex:Texture
+var tileTextureMap:Dictionary
+
 var ori_pos:Vector2
 var ori_pos_is_on_board:bool=false
 var form
@@ -26,10 +28,11 @@ var prevPos = Vector2.ZERO
 func _ready():
 	for y in form.size():
 		for x in form[y].size():
-			if form[y][x] == 1:
+			if typeof(form[y][x]) == TYPE_STRING:
+				var color = form[y][x]
 				var shadow = Sprite.new()
 				shadow.centered = false
-				shadow.texture = tileTex
+				shadow.texture = tileTextureMap[color]
 				shadow.offset = Vector2(5,5)
 				shadow.modulate.a = 0.2
 				shadow.modulate.r = 0
@@ -46,7 +49,7 @@ func _ready():
 				
 				var spr = Sprite.new()
 				spr.centered=false
-				spr.texture = tileTex
+				spr.texture = tileTextureMap[color]
 				spr.position = Vector2(
 					x*(tileSize+dividerSize),
 					y*(tileSize+dividerSize)
@@ -68,16 +71,18 @@ func hide_shadow():
 
 func _input(event):
 	if is_dragging && event is InputEventMouseMotion:
-		var dxy = event.position - prevPos
+		var pos = get_viewport().canvas_transform.affine_inverse().xform(event.position)
+		var dxy = pos - prevPos
 		position += dxy
-		prevPos = event.position
+		prevPos = pos
 		
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_LEFT:
 			if event.is_pressed():
-				if is_point_in_tiles(event.position):
+				var pos = get_viewport().canvas_transform.affine_inverse().xform(event.position)
+				if is_point_in_tiles(pos):
 					is_dragging=true
-					prevPos = event.position
+					prevPos = pos
 					emit_signal("drag_tile_group",self)
 					
 					#to add the TG back to the top of the list of displays
